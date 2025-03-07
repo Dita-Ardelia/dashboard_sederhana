@@ -15,7 +15,7 @@ data_path = os.path.join(BASE_DIR, "data_baru (3).csv")
 def load_data():
     """Load dataset dengan pengecekan error."""
     if not os.path.exists(data_path):
-        st.error(f"File data tidak ditemukan: {data_path}")
+        st.warning(f"File data tidak ditemukan di {data_path}. Silakan unggah file CSV.")
         return None
     try:
         return pd.read_csv(data_path)
@@ -26,11 +26,15 @@ def load_data():
 def main():
     st.title("📊 Product Sales Dashboard")
 
-    # Load data
+    # Upload file jika file tidak ditemukan
     df = load_data()
-    if df is None or df.empty:
-        st.warning("Data tidak tersedia atau kosong.")
-        return
+    if df is None:
+        uploaded_file = st.file_uploader("Unggah dataset CSV", type=["csv"])
+        if uploaded_file is not None:
+            df = pd.read_csv(uploaded_file)
+            st.success("Dataset berhasil dimuat!")
+        else:
+            return
     
     # Tampilkan dataset
     st.subheader("📄 Dataset")
