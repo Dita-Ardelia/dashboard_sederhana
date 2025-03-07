@@ -43,7 +43,7 @@ def main():
     # Pilihan Analisis
     analysis_type = st.sidebar.selectbox("Pilih Analisis:",
                                          ["Kategori Produk Terpopuler", "Distribusi Harga Produk", 
-                                          "Hubungan Berat vs Biaya Pengiriman", "Jumlah Produk per Seller"])
+                                          "Rata-rata Harga Produk per Kategori", "Pendapatan Tertinggi per Kategori Produk"])
     
     if analysis_type == "Kategori Produk Terpopuler":
         st.subheader("📌 Kategori Produk Terpopuler")
@@ -62,22 +62,27 @@ def main():
         ax.set_ylabel("Frekuensi")
         st.pyplot(fig)
     
-    elif analysis_type == "Hubungan Berat vs Biaya Pengiriman":
-        st.subheader("⚖️ Hubungan Berat Produk dan Biaya Pengiriman")
+    elif analysis_type == "Rata-rata Harga Produk per Kategori":
+        st.subheader("📌 Rata-rata Harga Produk per Kategori")
+        category_price = df.groupby("product_category_name")["price"].mean().reset_index()
+        category_price = category_price.sort_values(by="price", ascending=False).head(10)
         fig, ax = plt.subplots()
-        sns.scatterplot(x=df["product_weight_g"], y=df["freight_value"], alpha=0.5, ax=ax)
-        ax.set_xlabel("Berat Produk (g)")
-        ax.set_ylabel("Biaya Pengiriman")
+        sns.barplot(y=category_price["product_category_name"], x=category_price["price"], ax=ax, palette="Oranges")
+        ax.set_xlabel("Rata-rata Harga (USD)")
+        ax.set_ylabel("Kategori Produk")
+        ax.set_title("Rata-rata Harga Produk per Kategori (Top 10)")
         st.pyplot(fig)
     
-    elif analysis_type == "Jumlah Produk per Seller":
-        st.subheader("🏪 Jumlah Produk per Seller")
-        seller_counts = df["seller_id"].value_counts().head(10)
+    elif analysis_type == "Pendapatan Tertinggi per Kategori Produk":
+        st.subheader("💰 Pendapatan Tertinggi per Kategori Produk")
+        df["revenue"] = df["price"] * df["order_id"].map(df["order_id"].value_counts())
+        category_revenue = df.groupby("product_category_name")["revenue"].sum().reset_index()
+        category_revenue = category_revenue.sort_values(by="revenue", ascending=False).head(10)
         fig, ax = plt.subplots()
-        sns.barplot(x=seller_counts.index, y=seller_counts.values, ax=ax)
-        ax.set_xlabel("Seller ID")
-        ax.set_ylabel("Jumlah Produk")
-        ax.set_xticklabels(ax.get_xticklabels(), rotation=45)
+        sns.barplot(y=category_revenue["product_category_name"], x=category_revenue["revenue"], ax=ax, palette="Greens")
+        ax.set_xlabel("Total Pendapatan (USD)")
+        ax.set_ylabel("Kategori Produk")
+        ax.set_title("Pendapatan Tertinggi per Kategori Produk (Top 10)")
         st.pyplot(fig)
 
 if __name__ == "__main__":
