@@ -8,16 +8,17 @@ import seaborn as sns
 sns.set_theme(style="whitegrid", context="talk")
 
 # Path ke file dataset
-DATA_PATH = "data_baru (3).csv"
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+data_path = os.path.join(BASE_DIR, "data_baru (3).csv")
 
 @st.cache_data
 def load_data():
     """Load dataset dengan pengecekan error."""
-    if not os.path.exists(DATA_PATH):
-        st.error(f"File data tidak ditemukan: {DATA_PATH}")
+    if not os.path.exists(data_path):
+        st.error(f"File data tidak ditemukan: {data_path}")
         return None
     try:
-        return pd.read_csv(DATA_PATH)
+        return pd.read_csv(data_path)
     except Exception as e:
         st.error(f"Error loading data: {e}")
         return None
