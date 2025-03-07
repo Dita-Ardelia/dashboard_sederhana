@@ -24,7 +24,7 @@ def load_data():
         return None
 
 def main():
-    st.title("📊 Product Sales Dashboard")
+    st.title("📊 Dashboard E-commerce")
 
     # Upload file jika file tidak ditemukan
     df = load_data()
@@ -40,10 +40,24 @@ def main():
     st.subheader("📄 Dataset")
     st.dataframe(df.head(20))
     
+    # Menyiapkan daftar kategori unik
+    category_list = df["product_category_name"].dropna().unique().tolist()
+    category_list.insert(0, "Semua Kategori")
+
+    # Pilihan interaktif untuk memilih kategori produk
+    selected_category = st.selectbox("Pilih Kategori Produk:", category_list)
+
+    # Filter data berdasarkan kategori yang dipilih
+    if selected_category != "Semua Kategori":
+        df_filtered = df[df["product_category_name"] == selected_category]
+    else:
+        df_filtered = df
+
     # Rata-rata Harga Produk per Kategori
     st.subheader("📌 Rata-rata Harga Produk per Kategori")
-    category_price = df.groupby("product_category_name")["price"].mean().reset_index()
+    category_price = df_filtered.groupby("product_category_name")["price"].mean().reset_index()
     category_price = category_price.sort_values(by="price", ascending=False).head(10)
+    
     fig, ax = plt.subplots()
     sns.barplot(y=category_price["product_category_name"], x=category_price["price"], ax=ax, palette="Oranges_d")
     ax.set_xlabel("Rata-rata Harga (USD)")
@@ -53,10 +67,12 @@ def main():
     
     # Pendapatan Tertinggi per Kategori Produk
     st.subheader("💰 Pendapatan Tertinggi per Kategori Produk")
-    df["order_count"] = df.groupby("order_id")["order_id"].transform("count")
-    df["revenue"] = df["price"] * df["order_count"]
-    category_revenue = df.groupby("product_category_name")["revenue"].sum().reset_index()
+    df_filtered["order_count"] = df_filtered.groupby("order_id")["order_id"].transform("count")
+    df_filtered["revenue"] = df_filtered["price"] * df_filtered["order_count"]
+    
+    category_revenue = df_filtered.groupby("product_category_name")["revenue"].sum().reset_index()
     category_revenue = category_revenue.sort_values(by="revenue", ascending=False).head(10)
+    
     fig, ax = plt.subplots()
     sns.barplot(y=category_revenue["product_category_name"], x=category_revenue["revenue"], ax=ax, palette="Greens_r")
     ax.set_xlabel("Total Pendapatan (USD)")
