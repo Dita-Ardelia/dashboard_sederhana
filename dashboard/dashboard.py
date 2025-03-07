@@ -31,6 +31,10 @@ def main():
         st.warning("Data tidak tersedia atau kosong.")
         return
     
+    # Tampilkan dataset
+    st.subheader("📄 Dataset")
+    st.dataframe(df.head(20))
+    
     # Pilihan Analisis
     analysis_type = st.sidebar.selectbox("Pilih Analisis:",
                                          ["Kategori Produk Terpopuler", "Distribusi Harga Produk", 
