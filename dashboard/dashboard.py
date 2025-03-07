@@ -75,11 +75,12 @@ def main():
     
     elif analysis_type == "Pendapatan Tertinggi per Kategori Produk":
         st.subheader("💰 Pendapatan Tertinggi per Kategori Produk")
-        df["revenue"] = df["price"] * df["order_id"].map(df["order_id"].value_counts())
+        df["order_count"] = df.groupby("order_id")["order_id"].transform("count")
+        df["revenue"] = df["price"] * df["order_count"]
         category_revenue = df.groupby("product_category_name")["revenue"].sum().reset_index()
         category_revenue = category_revenue.sort_values(by="revenue", ascending=False).head(10)
         fig, ax = plt.subplots()
-        sns.barplot(y=category_revenue["product_category_name"], x=category_revenue["revenue"], ax=ax, palette="Greens_d")
+        sns.barplot(y=category_revenue["product_category_name"], x=category_revenue["revenue"], ax=ax, palette="Greens_r")
         ax.set_xlabel("Total Pendapatan (USD)")
         ax.set_ylabel("Kategori Produk")
         ax.set_title("Pendapatan Tertinggi per Kategori Produk (Top 10)")
