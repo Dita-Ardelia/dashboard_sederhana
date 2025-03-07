@@ -79,7 +79,7 @@ def main():
         category_revenue = df.groupby("product_category_name")["revenue"].sum().reset_index()
         category_revenue = category_revenue.sort_values(by="revenue", ascending=False).head(10)
         fig, ax = plt.subplots()
-        sns.barplot(y=category_revenue["product_category_name"], x=category_revenue["revenue"], ax=ax, palette="Oranges_d")
+        sns.barplot(y=category_revenue["product_category_name"], x=category_revenue["revenue"], ax=ax, palette="Greens_d")
         ax.set_xlabel("Total Pendapatan (USD)")
         ax.set_ylabel("Kategori Produk")
         ax.set_title("Pendapatan Tertinggi per Kategori Produk (Top 10)")
