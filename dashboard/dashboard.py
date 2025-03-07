@@ -7,12 +7,16 @@ import seaborn as sns
 # Atur gaya Seaborn
 sns.set_theme(style="whitegrid", context="talk")
 
-# Tentukan path absolut ke file CSV
-data_path = "data_baru (3).csv"
+# Tentukan path absolut ke file CSV dan gambar
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+data_path = os.path.join(BASE_DIR, "Bike_Sharing.csv")
 
 @st.cache_data
 def load_data():
     """Load dataset dengan pengecekan error."""
+    if not os.path.exists(data_path):
+        st.error(f"File data tidak ditemukan: {data_path}")
+        return None
     try:
         return pd.read_csv(data_path)
     except Exception as e:
@@ -20,38 +24,10 @@ def load_data():
         return None
 
 def main():
-    st.title("📊 Analisis Kategori Produk")
-    df = load_data()
-    if df is None:
-        return
-    
-    # Analisis rata-rata harga produk per kategori
-    category_price = df.groupby("product_category_name")["price"].mean().reset_index()
-    category_price.columns = ["category", "average_price"]
-    category_price = category_price.sort_values(by="average_price", ascending=False).head(10)
-    
-    # Analisis pendapatan tertinggi per kategori
-    category_revenue = df.groupby("product_category_name")["price"].sum().reset_index()
-    category_revenue.columns = ["category", "total_revenue"]
-    category_revenue = category_revenue.sort_values(by="total_revenue", ascending=False).head(10)
-    
-    # Membuat figure untuk 2 subplot
-    fig, axes = plt.subplots(1, 2, figsize=(18, 6))
-    
-    # Bar chart untuk rata-rata harga per kategori
-    sns.barplot(y=category_price["category"], x=category_price["average_price"], palette="Oranges_r", ax=axes[0])
-    axes[0].set_title("Rata-rata Harga Produk per Kategori (Top 10)")
-    axes[0].set_xlabel("Rata-rata Harga (USD)")
-    axes[0].set_ylabel("Kategori Produk")
-    
-    # Bar chart untuk pendapatan tertinggi per kategori
-    sns.barplot(y=category_revenue["category"], x=category_revenue["total_revenue"], palette="Greens_r", ax=axes[1])
-    axes[1].set_title("Pendapatan Tertinggi per Kategori Produk (Top 10)")
-    axes[1].set_xlabel("Total Pendapatan (USD)")
-    axes[1].set_ylabel("Kategori Produk")
-    
-    # Menampilkan plot di Streamlit
-    st.pyplot(fig)
+    st.title("🚴‍♂️ Bike Sharing Dashboard")
 
-if __name__ == "__main__":
-    main()
+    # Load data
+    merged_data_df = load_data()
+    if merged_data_df is None or merged_data_df.empty:
+        st.warning("Data tidak tersedia atau kosong.")
+        return
