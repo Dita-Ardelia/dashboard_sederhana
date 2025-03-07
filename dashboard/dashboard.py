@@ -40,25 +40,6 @@ def main():
     st.subheader("📄 Dataset")
     st.dataframe(df.head(20))
     
-    # Visualisasi tanpa filter di sidebar
-    
-    # Kategori Produk Terpopuler
-    st.subheader("📌 Kategori Produk Terpopuler")
-    top_categories = df["product_category_name"].value_counts().head(10)
-    fig, ax = plt.subplots()
-    sns.barplot(x=top_categories.values, y=top_categories.index, ax=ax, palette="Oranges_d")
-    ax.set_xlabel("Jumlah Produk")
-    ax.set_ylabel("Kategori Produk")
-    st.pyplot(fig)
-    
-    # Distribusi Harga Produk
-    st.subheader("💲 Distribusi Harga Produk")
-    fig, ax = plt.subplots()
-    sns.histplot(df["price"], bins=50, kde=True, ax=ax, color="#8C3D26")
-    ax.set_xlabel("Harga")
-    ax.set_ylabel("Frekuensi")
-    st.pyplot(fig)
-    
     # Rata-rata Harga Produk per Kategori
     st.subheader("📌 Rata-rata Harga Produk per Kategori")
     category_price = df.groupby("product_category_name")["price"].mean().reset_index()
