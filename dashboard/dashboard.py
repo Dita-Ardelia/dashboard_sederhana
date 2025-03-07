@@ -18,13 +18,15 @@ def load_data():
         st.warning(f"File data tidak ditemukan di {data_path}. Silakan unggah file CSV.")
         return None
     try:
-        return pd.read_csv(data_path)
+        df = pd.read_csv(data_path)
+        df["shipping_limit_date"] = pd.to_datetime(df["shipping_limit_date"], errors="coerce")  # Konversi tanggal
+        return df
     except Exception as e:
         st.error(f"Error loading data: {e}")
         return None
 
 def main():
-    st.title("📊 Dashboard E-commerce")
+    st.title("📊 Dashboard E-Commerce")
 
     # Upload file jika file tidak ditemukan
     df = load_data()
@@ -32,6 +34,7 @@ def main():
         uploaded_file = st.file_uploader("Unggah dataset CSV", type=["csv"])
         if uploaded_file is not None:
             df = pd.read_csv(uploaded_file)
+            df["shipping_limit_date"] = pd.to_datetime(df["shipping_limit_date"], errors="coerce")
             st.success("Dataset berhasil dimuat!")
         else:
             return
@@ -39,19 +42,14 @@ def main():
     # Tampilkan dataset
     st.subheader("📄 Dataset")
     st.dataframe(df.head(20))
-    
-    # Menyiapkan daftar kategori unik
-    category_list = df["product_category_name"].dropna().unique().tolist()
-    category_list.insert(0, "Semua Kategori")
 
-    # Pilihan interaktif untuk memilih kategori produk
-    selected_category = st.selectbox("Pilih Kategori Produk:", category_list)
+    # Pilih rentang tanggal
+    st.subheader("📅 Filter Data Berdasarkan Tanggal")
+    min_date, max_date = df["shipping_limit_date"].min(), df["shipping_limit_date"].max()
+    start_date, end_date = st.date_input("Pilih Rentang Tanggal", [min_date, max_date], min_value=min_date, max_value=max_date)
 
-    # Filter data berdasarkan kategori yang dipilih
-    if selected_category != "Semua Kategori":
-        df_filtered = df[df["product_category_name"] == selected_category]
-    else:
-        df_filtered = df
+    # Filter berdasarkan rentang tanggal yang dipilih
+    df_filtered = df[(df["shipping_limit_date"] >= pd.Timestamp(start_date)) & (df["shipping_limit_date"] <= pd.Timestamp(end_date))]
 
     # Rata-rata Harga Produk per Kategori
     st.subheader("📌 Rata-rata Harga Produk per Kategori")
@@ -64,7 +62,7 @@ def main():
     ax.set_ylabel("Kategori Produk")
     ax.set_title("Rata-rata Harga Produk per Kategori (Top 10)")
     st.pyplot(fig)
-    
+
     # Pendapatan Tertinggi per Kategori Produk
     st.subheader("💰 Pendapatan Tertinggi per Kategori Produk")
     df_filtered["order_count"] = df_filtered.groupby("order_id")["order_id"].transform("count")
